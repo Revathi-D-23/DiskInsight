@@ -1,0 +1,6 @@
+{
+  "name": "DiskInsight AI",
+  "description": "Full-stack ML-based disk I/O performance analysis tool integrating OS metrics, C algorithms, and predictive modeling.",
+  "requestFramePermissions": [],
+  "majorCapabilities": []
+}

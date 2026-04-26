@@ -1,0 +1,49 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // 0. Global Safety Net
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // --- Helpers ---
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    function isAdmin() {
+      // Bootstrapped Admin: Only allow a specific email for now as a placeholder
+      // In production, this would be an 'admins' collection check
+      return isSignedIn() && request.auth.token.email == "revathidevaraj2020@gmail.com" && request.auth.token.email_verified == true;
+    }
+
+    // Metric Log Validation
+    function isValidMetricLog(data) {
+      return data.keys().hasAll(['disk', 'cpu', 'memory', 'timestamp'])
+        && data.keys().size() >= 4
+        && data.disk is number && data.disk >= 0 && data.disk <= 100
+        && data.cpu is number && data.cpu >= 0 && data.cpu <= 100
+        && data.memory is number && data.memory >= 0 && data.memory <= 100
+        && data.timestamp is string && data.timestamp.size() <= 64;
+    }
+
+    // --- Collections ---
+    match /metrics/{metricId} {
+      allow read: if isSignedIn();
+      allow create: if isSignedIn() && isValidMetricLog(incoming()) && isValidId(metricId);
+      allow update, delete: if isAdmin();
+    }
+  }
+}

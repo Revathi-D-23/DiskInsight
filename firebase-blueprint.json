@@ -1,0 +1,39 @@
+{
+  "entities": {
+    "MetricLog": {
+      "title": "System Metric Log",
+      "description": "Store recorded system metrics for disk, CPU, and memory.",
+      "type": "object",
+      "properties": {
+        "disk": {
+          "type": "number",
+          "description": "Percentage of disk usage"
+        },
+        "cpu": {
+          "type": "number",
+          "description": "Percentage of CPU usage"
+        },
+        "memory": {
+          "type": "number",
+          "description": "Percentage of memory usage"
+        },
+        "timestamp": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Time of recording"
+        },
+        "recordedBy": {
+          "type": "string",
+          "description": "UID of the system process or admin who triggered the log"
+        }
+      },
+      "required": ["disk", "cpu", "memory", "timestamp"]
+    }
+  },
+  "firestore": {
+    "/metrics/{metricId}": {
+      "schema": "MetricLog",
+      "description": "Collection of timestamped system metrics."
+    }
+  }
+}
